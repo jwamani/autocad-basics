@@ -44,7 +44,8 @@ namespace TestDrawing.Drawing
 
         // Dimension styles
         public const string DimStyleName = "Dim 50";
-        public const double DimArrowSize = 2.5;
+        public const double DimArrowSize = 25;
+        public const string DimArrowBlock = "_ARCHTICK";
 
         // ACI color indices
         public const int AcByBlock = 0;

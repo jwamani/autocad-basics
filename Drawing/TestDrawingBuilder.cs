@@ -43,14 +43,15 @@ namespace TestDrawing.Drawing
                     textStyleId: textStyle50Id,
                     textHeight: DrawingConstants.TextStyle50Height,
                     arrowSize: DrawingConstants.DimArrowSize,
+                    arrowBlockName: DrawingConstants.DimArrowBlock,
                     textColor: Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan),
                     lineColor: Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcRed));
 
                 CreateBorder(transaction, modelSpace);
-                CreateInnerLines(transaction, modelSpace, out Point3d vertex5);
+                CreateInnerLines(transaction, modelSpace, out Point3d vertex1, out Point3d vertex3, out Point3d vertex5);
                 CreateArcsAndCircles(transaction, modelSpace, vertex5);
                 CreateLabels(transaction, modelSpace, textStyleId);
-                CreateDimensions(transaction, modelSpace, dimensionLayerId, dimStyleId);
+                CreateDimensions(transaction, modelSpace, dimensionLayerId, dimStyleId, vertex1, vertex3);
 
                 transaction.Commit();
             }
@@ -80,7 +81,7 @@ namespace TestDrawing.Drawing
             EntityAppender.Append(transaction, modelSpace, border);
         }
 
-        private static void CreateInnerLines(Transaction transaction, BlockTableRecord modelSpace, out Point3d vertex5)
+        private static void CreateInnerLines(Transaction transaction, BlockTableRecord modelSpace, out Point3d vertex1, out Point3d vertex3, out Point3d vertex5)
         {
             double width = DrawingConstants.SheetWidth;
             double height = DrawingConstants.SheetHeight;
@@ -92,9 +93,9 @@ namespace TestDrawing.Drawing
             Point3d topRight = new Point3d(width, height, 0);
             Point3d topLeft = new Point3d(0, height, 0);
 
-            Point3d vertex1 = new Point3d(topLeft.X + innerLineOffset, topLeft.Y - innerLineOffset, 0);
+            vertex1 = new Point3d(topLeft.X + innerLineOffset, topLeft.Y - innerLineOffset, 0);
             Point3d vertex2 = new Point3d(topLeft.X + innerLineOffset, bottomLeft.Y + innerLineOffset, 0);
-            Point3d vertex3 = new Point3d(bottomRight.X - innerLineOffset, bottomRight.Y + innerLineOffset, 0);
+            vertex3 = new Point3d(bottomRight.X - innerLineOffset, bottomRight.Y + innerLineOffset, 0);
             vertex5 = new Point3d(topRight.X - (innerLineOffset + arcRadius), topRight.Y - innerLineOffset, 0);
 
             Line line1 = new Line(vertex1, vertex2)
@@ -195,7 +196,9 @@ namespace TestDrawing.Drawing
             Transaction transaction,
             BlockTableRecord modelSpace,
             ObjectId dimensionLayerId,
-            ObjectId dimStyleId)
+            ObjectId dimStyleId,
+            Point3d vertex1,
+            Point3d vertex3)
         {
             double width = DrawingConstants.SheetWidth;
             double height = DrawingConstants.SheetHeight;
@@ -203,7 +206,6 @@ namespace TestDrawing.Drawing
             Point3d bottomLeft = Point3d.Origin;
             Point3d topLeft = new Point3d(0, height, 0);
             Point3d topRight = new Point3d(width, height, 0);
-
 
             RotatedDimension widthDimension = new RotatedDimension(
                 0,
@@ -226,8 +228,24 @@ namespace TestDrawing.Drawing
                 TextRotation = Math.PI / 2
             };
 
+            AlignedDimension diagonalDimension = new AlignedDimension(
+                vertex1,
+                vertex3,
+                new Point3d(
+                    (vertex1.X + vertex3.X) / 2,
+                    (vertex1.Y + vertex3.Y) / 2,
+                    0),
+                "",
+                dimStyleId
+            )
+            {
+                Dimgap = 5,
+                Dimtad = 1,
+            };
+
             EntityAppender.Append(transaction, modelSpace, widthDimension, dimensionLayerId);
             EntityAppender.Append(transaction, modelSpace, heightDimension, dimensionLayerId);
+            EntityAppender.Append(transaction, modelSpace, diagonalDimension, dimensionLayerId);
         }
     }
 }

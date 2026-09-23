@@ -22,7 +22,7 @@ namespace TestDrawing.Layers
             {
                 Name = layerName,
                 Color = color,
-                LineWeight = LineWeight.LineWeight050,
+                // LineWeight = LineWeight.LineWeight050,
             };
 
             layerTable.UpgradeOpen();
