@@ -38,8 +38,13 @@ namespace TestDrawing.Drawing
         public const double TextStyleHeight = 62.5;
         public const double TextStyleWidthFactor = 0.7;
 
+        public const string TextStyle50Name = "Text 50";
+        public const double TextStyle50Height = 125;
+        public const double TextStyle50WidthFactor = 0.7;
+
         // Dimension styles
         public const string DimStyleName = "Dim 50";
+        public const double DimArrowSize = 2.5;
 
         // ACI color indices
         public const int AcByBlock = 0;

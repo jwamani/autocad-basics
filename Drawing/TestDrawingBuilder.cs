@@ -29,10 +29,22 @@ namespace TestDrawing.Drawing
                     widthFactor: DrawingConstants.TextStyleWidthFactor,
                     height: DrawingConstants.TextStyleHeight);
 
+                ObjectId textStyle50Id = TextStyleManager.GetOrCreate(
+                    database,
+                    transaction,
+                    DrawingConstants.TextStyle50Name,
+                    widthFactor: DrawingConstants.TextStyle50WidthFactor,
+                    height: DrawingConstants.TextStyle50Height);
+
                 ObjectId dimStyleId = DimensionStyleManager.GetOrCreate(
                     database,
                     transaction,
-                    DrawingConstants.DimStyleName);
+                    DrawingConstants.DimStyleName,
+                    textStyleId: textStyle50Id,
+                    textHeight: DrawingConstants.TextStyle50Height,
+                    arrowSize: DrawingConstants.DimArrowSize,
+                    textColor: Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan),
+                    lineColor: Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcRed));
 
                 CreateBorder(transaction, modelSpace);
                 CreateInnerLines(transaction, modelSpace, out Point3d vertex5);
@@ -192,11 +204,12 @@ namespace TestDrawing.Drawing
             Point3d topLeft = new Point3d(0, height, 0);
             Point3d topRight = new Point3d(width, height, 0);
 
+
             RotatedDimension widthDimension = new RotatedDimension(
                 0,
                 topLeft,
                 topRight,
-                new Point3d(width / 2, -DrawingConstants.DimensionOffset, 0),
+                new Point3d(width / 2, height + DrawingConstants.DimensionOffset, 0),
                 "",
                 dimStyleId
             );
@@ -204,11 +217,14 @@ namespace TestDrawing.Drawing
             RotatedDimension heightDimension = new RotatedDimension(
                 Math.PI / 2,
                 bottomLeft,
-                new Point3d(0, height, 0),
+                topLeft,
                 new Point3d(-DrawingConstants.DimensionOffset, height / 2, 0),
                 "",
                 dimStyleId
-            );
+            )
+            {
+                TextRotation = Math.PI / 2
+            };
 
             EntityAppender.Append(transaction, modelSpace, widthDimension, dimensionLayerId);
             EntityAppender.Append(transaction, modelSpace, heightDimension, dimensionLayerId);
