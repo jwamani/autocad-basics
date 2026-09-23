@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <Nullable>disable</Nullable>
+        <PlatformTarget>x64</PlatformTarget>
+
+        <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoCAD.NET" Version="24.3.0" PrivateAssets="All" />
+        <PackageReference Include="AutoCAD.NET.Core" Version="24.3.0" PrivateAssets="All" />
+        <PackageReference Include="AutoCAD.NET.Model" Version="24.3.0" PrivateAssets="All" />
+    </ItemGroup>
+
+</Project>
