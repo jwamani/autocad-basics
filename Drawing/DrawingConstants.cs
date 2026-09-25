@@ -32,6 +32,9 @@ namespace TestDrawing.Drawing
 
         // Layers
         public const string DimensionLayerName = "DIM50";
+        public const string LeaderLayerName = "Leader";
+        public const string WallsLayerName = "WALLS";
+        public const string HatchLayerName = "Hatch";
 
         // Text styles
         public const string TextStyleName = "Text 25";
@@ -55,6 +58,13 @@ namespace TestDrawing.Drawing
         public const int AcCyan = 4;
         public const int AcBlue = 5;
         public const int AcMagenta = 6;
+        public const int AcWhite = 7;
         public const int AcByLayer = 256;
+
+        // Hatch
+        public const string CircleHatchPattern = "ANSI31";
+        public const string ArcHatchPattern = "ANSI31";
+        public const double CircleHatchScale = 2;
+        public const double ArcHatchScale = 2;
     }
 }

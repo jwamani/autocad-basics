@@ -4,24 +4,24 @@ namespace TestDrawing.Drawing
 {
     public static class EntityAppender
     {
-        public static void Append(
+        public static ObjectId Append(
             Transaction transaction,
             BlockTableRecord modelSpace,
             Entity entity)
         {
-            Append(transaction, modelSpace, entity, ObjectId.Null, ObjectId.Null);
+            return Append(transaction, modelSpace, entity, ObjectId.Null, ObjectId.Null);
         }
 
-        public static void Append(
+        public static ObjectId Append(
             Transaction transaction,
             BlockTableRecord modelSpace,
             Entity entity,
             ObjectId layerId)
         {
-            Append(transaction, modelSpace, entity, layerId, ObjectId.Null);
+            return Append(transaction, modelSpace, entity, layerId, ObjectId.Null);
         }
 
-        public static void Append(
+        public static ObjectId Append(
             Transaction transaction,
             BlockTableRecord modelSpace,
             Entity entity,
@@ -41,6 +41,7 @@ namespace TestDrawing.Drawing
 
             modelSpace.AppendEntity(entity);
             transaction.AddNewlyCreatedDBObject(entity, true);
+            return entity.ObjectId;
         }
     }
 }
