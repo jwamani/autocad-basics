@@ -59,11 +59,12 @@ namespace TestDrawing.Drawing
         public const int AcBlue = 5;
         public const int AcMagenta = 6;
         public const int AcWhite = 7;
+        public const int AcGray = 8;
         public const int AcByLayer = 256;
 
         // Hatch
         public const string CircleHatchPattern = "ANSI31";
-        public const string ArcHatchPattern = "ANSI31";
+        public const string ArcHatchPattern = "SOLID";
         public const double CircleHatchScale = 2;
         public const double ArcHatchScale = 2;
     }

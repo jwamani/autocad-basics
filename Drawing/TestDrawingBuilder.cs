@@ -67,7 +67,9 @@ namespace TestDrawing.Drawing
                 CreateBorder(transaction, modelSpace);
                 CreateInnerLines(transaction, modelSpace, out Point3d vertex1, out Point3d vertex3, out Point3d vertex5);
                 CreateArcsAndCircles(transaction, modelSpace, vertex5, out Circle circle, out Arc arc2);
+                CreateHatch(transaction, modelSpace, hatchLayerId, circle, arc2);
                 CreateLabels(transaction, modelSpace, textStyleId);
+                CreateMLeader(database, transaction, modelSpace, leaderLayerId, textStyleId);
                 CreateDimensions(transaction, modelSpace, dimensionLayerId, dimStyleId, vertex1, vertex3);
 
                 transaction.Commit();
@@ -214,6 +216,99 @@ namespace TestDrawing.Drawing
             EntityAppender.Append(transaction, modelSpace, arcLabel, ObjectId.Null, textStyleId);
         }
 
+        private static void CreateHatch(
+            Transaction transaction,
+            BlockTableRecord modelSpace,
+            ObjectId hatchLayerId,
+            Circle boundaryCircle,
+            Arc boundaryArc)
+        {
+            Hatch hatch = new Hatch();
+            // hatch.Associative = true;
+            hatch.Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcGray);
+
+            hatch.SetDatabaseDefaults();
+            hatch.SetHatchPattern(
+                HatchPatternType.PreDefined,
+                DrawingConstants.CircleHatchPattern);
+
+
+            ObjectIdCollection boundary = new ObjectIdCollection
+            {
+                boundaryCircle.ObjectId
+            };
+            EntityAppender.Append(transaction, modelSpace, hatch, hatchLayerId);
+
+            hatch.AppendLoop(HatchLoopTypes.Default, boundary);
+            hatch.EvaluateHatch(true);
+
+            Line arcChord = new Line(boundaryArc.StartPoint, boundaryArc.EndPoint)
+            {
+                Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer)
+            };
+
+            EntityAppender.Append(transaction, modelSpace, arcChord, hatchLayerId);
+
+            Hatch arcHatch = new Hatch();
+            arcHatch.Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcGreen);
+            arcHatch.SetDatabaseDefaults();
+            arcHatch.SetHatchPattern(
+                HatchPatternType.PreDefined,
+                DrawingConstants.ArcHatchPattern);
+
+            ObjectIdCollection arcBoundary = new ObjectIdCollection
+            {
+                boundaryArc.ObjectId,
+                arcChord.ObjectId
+            };
+
+            EntityAppender.Append(transaction, modelSpace, arcHatch, hatchLayerId);
+            arcHatch.AppendLoop(HatchLoopTypes.Outermost, arcBoundary);
+            arcHatch.EvaluateHatch(true);
+        }
+
+        private static ObjectId CreateMLeader(
+            Database database,
+            Transaction transaction,
+            BlockTableRecord modelSpace,
+            ObjectId leaderLayerId,
+            ObjectId textStyleId)
+        {
+            double wallX = DrawingConstants.InnerOffset;
+            double wallY = DrawingConstants.SheetHeight - DrawingConstants.InnerOffset;
+
+            Point3d arrowPoint = new Point3d(wallX, wallY - 1250, 0);
+            Point3d landingPoint = new Point3d(wallX - 460, wallY - 1250, 0);
+            Point3d textLocation = new Point3d(wallX - 1200, wallY - 1250, 0);
+
+            MText leaderText = new MText
+            {
+                Contents = @"\LInternal Wall Edge\l",
+                Location = textLocation,
+                TextStyleId = textStyleId,
+                TextHeight = DrawingConstants.LabelTextHeight,
+                Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer)
+            };
+            leaderText.SetDatabaseDefaults();
+
+            MLeader leader = new MLeader
+            {
+                ContentType = ContentType.MTextContent,
+                MText = leaderText,
+                Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer),
+                MLeaderStyle = database.MLeaderstyle,
+                ArrowSize = 62.5
+            };
+
+            leader.SetDatabaseDefaults();
+            int leaderIdx = leader.AddLeader();
+            leader.AddLeaderLine(leaderIdx);
+            leader.AddFirstVertex(leaderIdx, arrowPoint);
+            leader.AddLastVertex(leaderIdx, landingPoint);
+
+            return EntityAppender.Append(transaction, modelSpace, leader, leaderLayerId);
+        }
+
         private static void CreateDimensions(
             Transaction transaction,
             BlockTableRecord modelSpace,
@@ -248,10 +343,9 @@ namespace TestDrawing.Drawing
             )
             {
                 TextRotation = Math.PI / 2,
-                Dimtad = 1,
                 UsingDefaultTextPosition = false,
                 Dimtmove = 2,
-                TextPosition = new Point3d(-350, height / 2, 0)
+                TextPosition = new Point3d(-450, height / 2, 0)
             };
 
             AlignedDimension diagonalDimension = new AlignedDimension(
