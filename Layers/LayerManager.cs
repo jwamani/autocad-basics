@@ -11,6 +11,16 @@ namespace TestDrawing.Layers
             string layerName,
             Color color)
         {
+            return GetOrCreateLayer(database, transaction, layerName, color, LineWeight.ByLayer);
+        }
+
+        public static ObjectId GetOrCreateLayer(
+            Database database,
+            Transaction transaction,
+            string layerName,
+            Color color,
+            LineWeight lineWeight)
+        {
             LayerTable layerTable = (LayerTable)transaction.GetObject(database.LayerTableId, OpenMode.ForRead);
 
             if (layerTable.Has(layerName))
@@ -22,7 +32,7 @@ namespace TestDrawing.Layers
             {
                 Name = layerName,
                 Color = color,
-                // LineWeight = LineWeight.LineWeight050,
+                LineWeight = lineWeight,
             };
 
             layerTable.UpgradeOpen();

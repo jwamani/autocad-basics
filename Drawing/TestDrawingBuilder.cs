@@ -22,6 +22,23 @@ namespace TestDrawing.Drawing
                     DrawingConstants.DimensionLayerName,
                     Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcYellow));
 
+                ObjectId leaderLayerId = LayerManager.GetOrCreateLayer(
+                    database,
+                    transaction,
+                    DrawingConstants.LeaderLayerName,
+                    Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcRed));
+                ObjectId wallsLayerId = LayerManager.GetOrCreateLayer(
+                    database,
+                    transaction,
+                    DrawingConstants.WallsLayerName,
+                    Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan));
+                ObjectId hatchLayerId = LayerManager.GetOrCreateLayer(
+                    database,
+                    transaction,
+                    DrawingConstants.HatchLayerName,
+                    Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan),
+                    LineWeight.LineWeight020);
+
                 ObjectId textStyleId = TextStyleManager.GetOrCreate(
                     database,
                     transaction,
@@ -49,7 +66,7 @@ namespace TestDrawing.Drawing
 
                 CreateBorder(transaction, modelSpace);
                 CreateInnerLines(transaction, modelSpace, out Point3d vertex1, out Point3d vertex3, out Point3d vertex5);
-                CreateArcsAndCircles(transaction, modelSpace, vertex5);
+                CreateArcsAndCircles(transaction, modelSpace, vertex5, out Circle circle, out Arc arc2);
                 CreateLabels(transaction, modelSpace, textStyleId);
                 CreateDimensions(transaction, modelSpace, dimensionLayerId, dimStyleId, vertex1, vertex3);
 
@@ -121,7 +138,12 @@ namespace TestDrawing.Drawing
             EntityAppender.Append(transaction, modelSpace, line4);
         }
 
-        private static void CreateArcsAndCircles(Transaction transaction, BlockTableRecord modelSpace, Point3d vertex5)
+        private static void CreateArcsAndCircles(
+            Transaction transaction,
+            BlockTableRecord modelSpace,
+            Point3d vertex5,
+            out Circle circle,
+            out Arc arc2)
         {
             double width = DrawingConstants.SheetWidth;
             double height = DrawingConstants.SheetHeight;
@@ -139,14 +161,14 @@ namespace TestDrawing.Drawing
 
             Point3d circleCenter = new Point3d(width / 2, height / 2, 0);
 
-            Circle circle = new Circle(circleCenter, Vector3d.ZAxis, DrawingConstants.CircleRadius)
+            circle = new Circle(circleCenter, Vector3d.ZAxis, DrawingConstants.CircleRadius)
             {
                 Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer)
             };
 
             Point3d arc2Center = new Point3d(circleCenter.X + DrawingConstants.Arc2CenterOffsetX, circleCenter.Y, 0);
             double degToRad = Math.PI / 180.0;
-            Arc arc2 = new Arc(
+            arc2 = new Arc(
                 arc2Center,
                 DrawingConstants.Arc2Radius,
                 DrawingConstants.Arc2StartAngleDeg * degToRad,
@@ -225,7 +247,11 @@ namespace TestDrawing.Drawing
                 dimStyleId
             )
             {
-                TextRotation = Math.PI / 2
+                TextRotation = Math.PI / 2,
+                Dimtad = 1,
+                UsingDefaultTextPosition = false,
+                Dimtmove = 2,
+                TextPosition = new Point3d(-350, height / 2, 0)
             };
 
             AlignedDimension diagonalDimension = new AlignedDimension(
@@ -240,12 +266,45 @@ namespace TestDrawing.Drawing
             )
             {
                 Dimgap = 5,
-                Dimtad = 1,
+                Dimjust = 0,
+                TextRotation = 330 * (Math.PI / 180.0),
+                UsingDefaultTextPosition = false,
+                Dimtmove = 2,
+                TextPosition = new Point3d(
+                    (vertex1.X + vertex3.X) / 3,
+                    vertex1.Y - 300,
+                    0)
+            };
+
+
+            RotatedDimension miniDimension = new RotatedDimension(
+                Math.PI / 2,
+                new Point3d(
+                    vertex3.X - 1300,
+                    vertex3.Y - 200,
+                    0
+                ),
+                new Point3d(
+                    vertex3.X - 1300,
+                    vertex3.Y,
+                    0
+                ),
+                new Point3d(
+                    vertex3.X - 1200,
+                    vertex3.Y / 2,
+                    0
+                ),
+                "",
+                dimStyleId
+            )
+            {
+                TextRotation = 0,
             };
 
             EntityAppender.Append(transaction, modelSpace, widthDimension, dimensionLayerId);
             EntityAppender.Append(transaction, modelSpace, heightDimension, dimensionLayerId);
             EntityAppender.Append(transaction, modelSpace, diagonalDimension, dimensionLayerId);
+            EntityAppender.Append(transaction, modelSpace, miniDimension, dimensionLayerId);
         }
     }
 }
