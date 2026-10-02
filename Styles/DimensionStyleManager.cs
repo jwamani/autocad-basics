@@ -1,5 +1,6 @@
 using Autodesk.AutoCAD.Colors;
 using Autodesk.AutoCAD.DatabaseServices;
+using TestDrawing.Drawing;
 
 namespace TestDrawing.Styles
 {
@@ -28,9 +29,12 @@ namespace TestDrawing.Styles
                 existing.Dimtxsty = textStyleId;
                 existing.Dimtxt = textHeight;
                 existing.Dimasz = arrowSize;
-                existing.Dimtsz = arrowBlockId.IsValid ? 0 : arrowSize;
                 if (arrowBlockId.IsValid)
-                    existing.Dimblk = arrowBlockId;
+                {
+                    existing.Dimtsz = 0;
+                    existing.Dimblk1 = arrowBlockId;
+                    existing.Dimblk2 = arrowBlockId;
+                }
                 existing.Dimclrt = textColor;
                 existing.Dimclrd = lineColor;
                 existing.Dimse1 = false;
@@ -43,6 +47,7 @@ namespace TestDrawing.Styles
                 existing.Dimtad = 1;
                 existing.Dimdec = 0;
                 existing.Dimlwd = LineWeight.ByLayer;
+                existing.Dimclre = lineColor;
 
                 return existingId;
             }
@@ -61,12 +66,15 @@ namespace TestDrawing.Styles
                 Dimse2 = true,
                 Dimtad = 1,
                 Dimgap = 20,
-                Dimdec = 0
+                Dimdec = 0,
+                Dimclre = lineColor
             };
             if (arrowBlockId.IsValid)
-                style.Dimblk = arrowBlockId;
-            else
-                style.Dimtsz = arrowSize;
+            {
+                style.Dimtsz = 0;
+                style.Dimblk1 = arrowBlockId;
+                style.Dimblk2 = arrowBlockId;
+            }
 
             dimStyleTable.UpgradeOpen();
 

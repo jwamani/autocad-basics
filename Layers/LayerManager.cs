@@ -11,7 +11,7 @@ namespace TestDrawing.Layers
             string layerName,
             Color color)
         {
-            return GetOrCreateLayer(database, transaction, layerName, color, LineWeight.ByLayer, null);
+            return GetOrCreateLayer(database, transaction, layerName, color, LineWeight.ByLineWeightDefault, null);
         }
 
         public static ObjectId GetOrCreateLayer(
@@ -39,7 +39,9 @@ namespace TestDrawing.Layers
                 LayerTableRecord existingLayer =
                     (LayerTableRecord)transaction.GetObject(
                         layerTable[layerName],
-                        transparency.HasValue ? OpenMode.ForWrite : OpenMode.ForRead);
+                        OpenMode.ForWrite);
+
+                existingLayer.LineWeight = lineWeight;
 
                 if (transparency.HasValue)
                     existingLayer.Transparency = transparency.Value;

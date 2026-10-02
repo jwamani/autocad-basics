@@ -73,7 +73,7 @@ namespace TestDrawing.Drawing
                 CreateArcsAndCircles(transaction, modelSpace, vertex5, out Circle circle, out Arc arc2);
                 CreateHatch(transaction, modelSpace, hatchLayerId, circle, arc2);
                 CreateLabels(transaction, modelSpace, textStyleId);
-                CreateMLeader(database, transaction, modelSpace, leaderLayerId, textStyleId);
+                CreateMLeader(database, transaction, modelSpace, leaderLayerId, textStyleId, textStyle50Id);
                 CreateDimensions(transaction, modelSpace, dimensionLayerId, dimStyleId, vertex1, vertex3);
 
                 transaction.Commit();
@@ -213,7 +213,8 @@ namespace TestDrawing.Drawing
                 Position = new Point3d(arc2Center.X, arc2Center.Y + DrawingConstants.ArcLabelOffsetY, 0),
                 Height = DrawingConstants.LabelTextHeight,
                 TextString = "Arc",
-                Color = Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan)
+                Color = Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan),
+                WidthFactor = 0.7,
             };
 
             EntityAppender.Append(transaction, modelSpace, circleLabel, ObjectId.Null, textStyleId);
@@ -251,7 +252,7 @@ namespace TestDrawing.Drawing
                 Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer)
             };
 
-            EntityAppender.Append(transaction, modelSpace, arcChord, hatchLayerId);
+            EntityAppender.Append(transaction, modelSpace, arcChord);
 
             Hatch arcHatch = new Hatch();
             arcHatch.Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcGreen);
@@ -271,46 +272,84 @@ namespace TestDrawing.Drawing
             arcHatch.EvaluateHatch(true);
         }
 
-        private static ObjectId CreateMLeader(
+        private static void CreateMLeader(
             Database database,
             Transaction transaction,
             BlockTableRecord modelSpace,
             ObjectId leaderLayerId,
-            ObjectId textStyleId)
+            ObjectId textStyleId,
+            ObjectId textStyle50Id)
         {
             double wallX = DrawingConstants.InnerOffset;
             double wallY = DrawingConstants.SheetHeight - DrawingConstants.InnerOffset;
 
-            Point3d arrowPoint = new Point3d(wallX, wallY - 1250, 0);
-            Point3d landingPoint = new Point3d(wallX - 460, wallY - 1250, 0);
-            Point3d textLocation = new Point3d(wallX - 1200, wallY - 1250, 0);
+            double wallX2 = DrawingConstants.SheetWidth;
+            double wallY2 = DrawingConstants.SheetHeight / 2;
 
-            MText leaderText = new MText
+            Point3d arrowPoint = new Point3d(wallX, wallY - 1250, 0);
+            Point3d landingPoint1 = new Point3d(wallX - 800, wallY - 1250, 0);
+            Point3d textLocation1 = new Point3d(wallX - 2200, wallY - 1250, 0);
+
+            Point3d arrowPoint2 = new Point3d(wallX2, wallY2, 0);
+            Point3d landingPoint2 = new Point3d(wallX2 + 450, wallY2 + 500, 0);
+            Point3d textLocation2 = new Point3d(wallX2 + 450, wallY2 + 500, 0);
+
+            MText leaderText1 = new MText
             {
-                Contents = @"\LInternal Wall Edge\l",
-                Location = textLocation,
+                Contents = @"\C4;Internal Wall Edge",
+                Location = textLocation1,
+                TextStyleId = textStyle50Id,
+                TextHeight = 125,
+                Color = Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan)
+            };
+            leaderText1.SetDatabaseDefaults();
+
+            MText leaderText2 = new MText
+            {
+                Contents = "Wall Edge",
+                Location = textLocation2,
                 TextStyleId = textStyleId,
                 TextHeight = DrawingConstants.LabelTextHeight,
                 Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer)
             };
-            leaderText.SetDatabaseDefaults();
 
             MLeader leader = new MLeader
             {
                 ContentType = ContentType.MTextContent,
-                MText = leaderText,
+                MText = leaderText1,
                 Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer),
                 MLeaderStyle = database.MLeaderstyle,
-                ArrowSize = 62.5
+                ArrowSize = 62.5,
+                TextAttachmentType = TextAttachmentType.AttachmentBottomOfTopLine
+            };
+
+            MLeader leader2 = new MLeader
+            {
+                ContentType = ContentType.MTextContent,
+                MText = leaderText2,
+                Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcByLayer),
+                MLeaderStyle = database.MLeaderstyle,
+                ArrowSize = 62.5,
+                TextAttachmentType = TextAttachmentType.AttachmentBottomOfTopLine
             };
 
             leader.SetDatabaseDefaults();
+            leader2.SetDatabaseDefaults();
+
             int leaderIdx = leader.AddLeader();
+            int leaderIdx2 = leader2.AddLeader();
+
             leader.AddLeaderLine(leaderIdx);
             leader.AddFirstVertex(leaderIdx, arrowPoint);
-            leader.AddLastVertex(leaderIdx, landingPoint);
+            leader.AddLastVertex(leaderIdx, landingPoint1);
 
-            return EntityAppender.Append(transaction, modelSpace, leader, leaderLayerId);
+            leader2.AddLeaderLine(leaderIdx2);
+            leader2.AddFirstVertex(leaderIdx2, arrowPoint2);
+            leader2.AddLastVertex(leaderIdx2, landingPoint2);
+
+
+            EntityAppender.Append(transaction, modelSpace, leader, leaderLayerId);
+            EntityAppender.Append(transaction, modelSpace, leader2, leaderLayerId);
         }
 
         private static void CreateDimensions(
@@ -397,6 +436,9 @@ namespace TestDrawing.Drawing
             )
             {
                 TextRotation = 0,
+                Dimtix = false,
+                Dimtih = true,
+                Dimtoh = true
             };
 
             EntityAppender.Append(transaction, modelSpace, widthDimension, dimensionLayerId);
