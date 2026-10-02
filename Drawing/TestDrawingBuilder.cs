@@ -32,12 +32,16 @@ namespace TestDrawing.Drawing
                     transaction,
                     DrawingConstants.WallsLayerName,
                     Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan));
+
+                byte alpha = (byte)Math.Round(0.2 * 255.0); // 80% transparency
                 ObjectId hatchLayerId = LayerManager.GetOrCreateLayer(
                     database,
                     transaction,
                     DrawingConstants.HatchLayerName,
                     Color.FromColorIndex(ColorMethod.ByColor, DrawingConstants.AcCyan),
-                    LineWeight.LineWeight020);
+                    LineWeight.LineWeight020,
+                    new Transparency(alpha)
+                    );
 
                 ObjectId textStyleId = TextStyleManager.GetOrCreate(
                     database,
@@ -225,7 +229,7 @@ namespace TestDrawing.Drawing
         {
             Hatch hatch = new Hatch();
             // hatch.Associative = true;
-            hatch.Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcGray);
+            hatch.Color = Color.FromColorIndex(ColorMethod.ByLayer, DrawingConstants.AcWhite);
 
             hatch.SetDatabaseDefaults();
             hatch.SetHatchPattern(

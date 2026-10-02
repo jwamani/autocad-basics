@@ -41,6 +41,7 @@ namespace TestDrawing.Styles
                 existing.Dimexe = 100;
                 existing.Dimgap = 20;
                 existing.Dimtad = 1;
+                existing.Dimdec = 0;
                 existing.Dimlwd = LineWeight.ByLayer;
 
                 return existingId;
@@ -59,7 +60,8 @@ namespace TestDrawing.Styles
                 Dimse1 = true,
                 Dimse2 = true,
                 Dimtad = 1,
-                Dimgap = 20
+                Dimgap = 20,
+                Dimdec = 0
             };
             if (arrowBlockId.IsValid)
                 style.Dimblk = arrowBlockId;

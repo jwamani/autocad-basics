@@ -63,7 +63,7 @@ namespace TestDrawing.Drawing
         public const int AcByLayer = 256;
 
         // Hatch
-        public const string CircleHatchPattern = "ANSI31";
+        public const string CircleHatchPattern = "SOLID";
         public const string ArcHatchPattern = "SOLID";
         public const double CircleHatchScale = 2;
         public const double ArcHatchScale = 2;
