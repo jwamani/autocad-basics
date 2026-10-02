@@ -435,10 +435,7 @@ namespace TestDrawing.Drawing
                 dimStyleId
             )
             {
-                TextRotation = 0,
-                Dimtix = false,
-                Dimtih = true,
-                Dimtoh = true
+                TextRotation = 0
             };
 
             EntityAppender.Append(transaction, modelSpace, widthDimension, dimensionLayerId);

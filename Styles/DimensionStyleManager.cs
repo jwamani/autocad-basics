@@ -46,6 +46,9 @@ namespace TestDrawing.Styles
                 existing.Dimgap = 20;
                 existing.Dimtad = 1;
                 existing.Dimdec = 0;
+                existing.Dimtix = false;
+                existing.Dimtoh = false;
+                existing.Dimtih = false;
                 existing.Dimlwd = LineWeight.ByLayer;
                 existing.Dimclre = lineColor;
 
@@ -67,6 +70,9 @@ namespace TestDrawing.Styles
                 Dimtad = 1,
                 Dimgap = 20,
                 Dimdec = 0,
+                Dimtix = false,
+                Dimtoh = false,
+                Dimtih = false,
                 Dimclre = lineColor
             };
             if (arrowBlockId.IsValid)
